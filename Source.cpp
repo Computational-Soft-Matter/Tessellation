@@ -12,6 +12,7 @@
 #include<map>
 #include<utility>
 #include<time.h>
+#include<ctime>
 #define PI 3.14159265
 
 using namespace std;
@@ -21,16 +22,16 @@ typedef double Real;
 
 //--------------------System Information-------------------//
 
-string input_file = "testsquare36";
-string input_extension = ".vtk";
-string neighbor_input = "NULL";
-string output_capsomer = input_file+"caps.vtk";
-string output_outline =  input_file+"outline.vtk";
+string input_file = "test2d87exp273";								// File contains the 3D coordinates of the colloidal particles
+string input_extension = ".txt";
+string neighbor_input = "NULL";								// If neighbor list has been calculated previously, then instead of NULL, the file will contain the index of a particle, number of neighbors and the radius of search to acquire those neighbors
+string output_capsomer = input_file+"newtestcaps.vtk";		// Output file name that has the information of the capsomer cells
+string output_outline =  input_file+"newtestoutline.vtk";	// Output file name that has the information of capsomer outline
 
 //n_part : number of particles -> can be changed according to the system
 
-const int n_part = 36;			// Total Number of Particles in the inputfile
-const int nonrepeat_part = 36;	// Total Number of True Particles (In cases where repeated particles are fed for periodic BC)
+const int n_part = 273;			// Total Number of Particles in the inputfile
+const int nonrepeat_part = 144;	// Total Number of True Particles (In cases where repeated particles are fed for periodic BC)
 
 // Equilibrium distance R_e (If not acquired from an MC simulation, predefine some value here)
 
@@ -45,7 +46,7 @@ const int nonrepeat_part = 36;	// Total Number of True Particles (In cases where
 //MC//
 const Real R_e = 0.2;
 
-const Real R_c = 2.23 * R_e;         // Cut-off distance for particle search
+const Real R_c = 2.23 * R_e;        // Cut-off distance for particle search
 const Real delr = 0.25 * R_e;	    // Window width
 const Real dr = delr / 40;		    // Radius change
 const Real initialr = delr / 2; 	// Starting radius
@@ -220,7 +221,7 @@ vector<int> sort(map<int, int>& M)
 	return Result;
 }
 
-
+//-------- Function to sort the list of neighbors (using the global list of neighbors- "pos_neighbor") according to its angle with the target particle and an arbitrary direction (vector between target particle and the first neighbor) ...................//
 vector<int> neighborordering(int i) {
 	vector<int>finallist;
 	int i_size = pos_neighbor[i].size();
@@ -321,6 +322,7 @@ vector<int> neighborordering(int i) {
 	return finallist;
 }
 
+//-------- Same function as above but the list of neigbhors is provided through "givencontainer" instead of using the global list .........//
 vector<int> neighborordering(int i, vector<int>givencontainer) {
 	vector<int>finallist;
 	int currentnode = i;
@@ -454,16 +456,16 @@ void test() {
 //--------------Starting Main Function-------------------//
 
 int main() {
-	int totalpoints = 0;
-	founds Emp[1000];
-	int empcount = 0;// total number of particles in the final vtk file
+	clock_t starttime = clock();
+	int totalpoints = 0;					// Total number of points in the final VTK file containing all the capsomers (this includes the initial set of points and the vertices of the capsomers)
+	founds Emp[1000];						// Data structure for averaging points in empty region - (container to store the vertices of quadrilaterals that uses average capsomer vertices position described in section 2.1.4
+	int empcount = 0;						// Data structure for averaging points in empty region
 	int totalcaps = 0;						// total number of capsomers in the final vtk file
 	vector<Real>n_neighbor;		            // neighbour information of target particles - first -> number of n_neighbor, second-> radius range of search
 	vector<int>vtknodes;					// particle IDs for final VTK file (including capsomer vertices)
 	vector<Real>avg_neighbor;				// average distances for n_neighbor
 	vector<pair<int, int>>single_edges;		// pairs of single edge connections
 	map<int, int>marked;                    // marked node which has single edge connections and changed capsomers
-	vector<vector<Vector3d>>specials;
 								
 	//---------------------Reading particle positions-------------------//
 	string myText;
@@ -535,7 +537,6 @@ int main() {
 
 				Real countdist = count_n - maxn;
 				lastcount_n = count_n;
-				//cout << countdist << count_n << endl;
 				if (maxn < count_n) {
 					maxn = count_n;
 					maxr = init_r;
@@ -543,16 +544,14 @@ int main() {
 
 				list_p.push_back(count_n);
 				list_n.push_back(init_r);
-				//print_vector(list_p);
 				if (init_r > R_c || count_n > 15 || countdist < -2) {
 					isstop = 2;
 				}
 				it++;
 				init_r += dr;
-				//cout << init_r << " " << count_n << endl;
 			}
 			n_neighbor.push_back(maxr);
-			cout << i << " " << maxn << " " << maxr << endl;
+			//cout << i << " " << maxn << " " << maxr << endl;
 		}
 	}
 
@@ -670,8 +669,8 @@ int main() {
 			}
 			vector<Real>vector_p;
 			vector<Real>vector_n;
-			vector_p = sort(p_angles);							// list of particles on the positive side of i and j
-			vector_n = sort(n_angles);							// list of particles on the negative side of i and j
+			vector_p = sort(p_angles);							// sorted list of particles on the positive side of i and j according to angle
+			vector_n = sort(n_angles);							// sorted list of particles on the negative side of i and j according to angle
 
 			//----------------Deleting overlapping particles from positive side-----------------//
 			int psize = vector_p.size();
@@ -681,14 +680,14 @@ int main() {
 				int pnow = vector_p[ite];
 				//cout << dist(pos.at(i), pos.at(pnow)) - avg_neighbor[i] << " " << dist(pos.at(noden), pos.at(pnow)) - avg_neighbor[noden] << endl;
 				if (dist(pos.at(i), pos.at(pnow)) - avg_neighbor[i] < dist(pos.at(node_j), pos.at(pnow)) - avg_neighbor[node_j]) {
-					P[co].dist = abs(dist(pos.at(node_j), pos.at(pnow)) - avg_neighbor[node_j]);
+					P[co].dist = abs(dist(pos.at(node_j), pos.at(pnow)) - avg_neighbor[node_j])+ abs(dist(pos.at(i), pos.at(pnow)) - avg_neighbor[i]);
 					P[co].deletefrom = node_j;
 					P[co].deletenode = pnow;
 					co++;
 					//cout << P[co-1].dist << "d" << endl;
 				}
 				else {
-					P[co].dist = abs(dist(pos.at(i), pos.at(pnow)) - avg_neighbor[i]);
+					P[co].dist = abs(dist(pos.at(i), pos.at(pnow)) - avg_neighbor[i])+ abs(dist(pos.at(node_j), pos.at(pnow)) - avg_neighbor[node_j]);
 					P[co].deletefrom = i;
 					P[co].deletenode = pnow;
 					co++;
@@ -724,7 +723,7 @@ int main() {
 				//cout << deletnow2 << "deleted" << dltfr2 << endl;
 				pos_neighbor[dltfr2].erase(pos_neighbor[dltfr2].begin() + deletat2);
 			}
-
+			//----------------Deleting overlapping particles from negative side-----------------//
 			int nsize = vector_n.size();
 			//cout << nsize <<"n"<< endl;
 			storedelete N[10];
@@ -733,13 +732,13 @@ int main() {
 				int nnow = vector_n[ite];
 				//cout << dist(pos.at(i), pos.at(nnow)) - avg_neighbor[i] << " " << dist(pos.at(noden), pos.at(nnow)) - avg_neighbor[noden] << endl;
 				if (dist(pos.at(i), pos.at(nnow)) - avg_neighbor[i] < dist(pos.at(node_j), pos.at(nnow)) - avg_neighbor[node_j]) {
-					N[cor].dist = abs(dist(pos.at(node_j), pos.at(nnow)) - avg_neighbor[node_j]);
+					N[cor].dist = abs(dist(pos.at(node_j), pos.at(nnow)) - avg_neighbor[node_j])+ abs(dist(pos.at(i), pos.at(nnow)) - avg_neighbor[i]);
 					N[cor].deletefrom = node_j;
 					N[cor].deletenode = nnow;
 					cor++;
 				}
 				else {
-					N[cor].dist = abs(dist(pos.at(i), pos.at(nnow)) - avg_neighbor[i]);
+					N[cor].dist = abs(dist(pos.at(i), pos.at(nnow)) - avg_neighbor[i])+ abs(dist(pos.at(node_j), pos.at(nnow)) - avg_neighbor[node_j]);
 					N[cor].deletefrom = i;
 					N[cor].deletenode = nnow;
 					cor++;
@@ -1512,23 +1511,26 @@ int main() {
 	ofstream f;
 	ofstream fo;
 	ofstream ft;
+	ofstream fp;
 	int trianglecount = 0;
 	f.open(output_capsomer);
 	f << "# vtk DataFile Version 1.0\nvtk output\nASCII\nDATASET UNSTRUCTURED_GRID\nPOINTS ";
-	f << n_part + totalpoints;
+	f << nonrepeat_part + totalpoints;
 	f << " float\n";
 
 	fo.open(output_outline);
 	fo << "# vtk DataFile Version 1.0\nvtk output\nASCII\nDATASET UNSTRUCTURED_GRID\nPOINTS ";
-	fo << n_part + totalpoints;
+	fo << nonrepeat_part + totalpoints;
 	fo << " float\n";
 
-	ft.open("postertriangle.vtk");
+	ft.open(input_file+"_triangle.vtk");
 	ft << "# vtk DataFile Version 1.0\nvtk output\nASCII\nDATASET UNSTRUCTURED_GRID\nPOINTS ";
-	ft << n_part + totalpoints;
+	ft << nonrepeat_part + totalpoints;
 	ft << " float\n";
 
-	for (int i = 0; i < n_part; i++) {
+	fp.open(input_file+"data.txt");
+
+	for (int i = 0; i < nonrepeat_part; i++) {
 		f << pos.at(i)(0) << " " << pos.at(i)(1) << " " << pos.at(i)(2) << endl;
 		fo << pos.at(i)(0) << " " << pos.at(i)(1) << " " << pos.at(i)(2) << endl;
 	}
@@ -1630,6 +1632,11 @@ int main() {
 				}
 				finallist.push_back(vector_p.at(psize - 1));
 			}
+			
+			for (int fsize = 0; fsize < finallist.size()-1; fsize++) {
+				fp << finallist[fsize] << " ";
+			}
+			fp << endl;
 			for (int j = 0; j < isize; j++) {
 				int alreadypushed = 0;
 				for (int empiter = 0; empiter < empcount; empiter++) {
@@ -1746,8 +1753,12 @@ int main() {
 			f << "0.3\n";
 		}
 	}
-	//cout << triangle;
+	cout << triangle << "Number of vertices in Triangle file" << endl;
 	f.close();
 	fo.close();
 	ft.close();
+	fp.close();
+	clock_t stoptime = clock();
+	Real sum = ((double)(stoptime - starttime) / CLOCKS_PER_SEC);
+	cout << sum << endl;
 }
