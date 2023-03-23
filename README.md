@@ -1,6 +1,6 @@
 # Tessellation
 
-Please, run the source code from MainFunc.cpp
+Please, run the source code from SourceCode/MainFunc.cpp
 
 INPUT FILE FORMAT: Input files are .vtk files with 3D particles positions only.
 
