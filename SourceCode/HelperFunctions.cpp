@@ -7,7 +7,7 @@ namespace Tessellation {
 	}
 
 	//----------------Vector search for 'a' inside Vector A-----------------//
-	int vector_search(vector<int>A, int a) {
+	int vector_search(vector<int>&A, int a) {
 		int Asize = A.size();
 		int counta = 0;
 		for (int i = 0; i < Asize; i++) {
@@ -22,7 +22,7 @@ namespace Tessellation {
 	}
 
 	//----------------Vector search to find index of key--------//
-	int find_ind(vector<int>A, int a) {
+	int find_ind(vector<int>&A, int a) {
 		int Asize = A.size();
 		int counta = 0;
 		for (int i = 0; i < Asize; i++) {
@@ -123,7 +123,7 @@ namespace Tessellation {
 	}
 
 	//-------------Debugging Functions---------------//
-	void print_vector(vector<int>A) {
+	void print_vector(vector<int>&A) {
 		int Asize = A.size();
 		for (int i = 0; i < Asize; i++) {
 			cout << A.at(i) << ", ";
@@ -131,7 +131,7 @@ namespace Tessellation {
 		cout << "printed vector of ints" << endl;
 	}
 
-	void print_vector(vector<Real>A) {
+	void print_vector(vector<Real>&A) {
 		int Asize = A.size();
 		for (int i = 0; i < Asize; i++) {
 			cout << A.at(i) << ", ";
@@ -139,7 +139,7 @@ namespace Tessellation {
 		cout << "printed vector of Reals" << endl;
 	}
 
-	void print_vector(vector<pair<int, int>>A) {
+	void print_vector(vector<pair<int, int>>&A) {
 		int Asize = A.size();
 		for (int i = 0; i < Asize; i++) {
 			cout << A.at(i).first << ", " << A.at(i).second << endl;
