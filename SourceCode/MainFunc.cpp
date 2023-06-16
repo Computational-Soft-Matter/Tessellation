@@ -43,9 +43,9 @@ bool CompareDatadlt(storedelete a, storedelete b)
 //--------------Starting Main Function-------------------//
 
 int main() {
-	string input_file = "blob1exp";								// File contains the 3D coordinates of the colloidal particles
+	string input_file = "und5exp";								// File contains the 3D coordinates of the colloidal particles
 	string input_extension = ".vtk";
-	string neighbor_input = "blob1exppos.txt";								// If neighbor list has been calculated previously, then instead of NULL, the file will contain the index of a particle, number of neighbors and the radius of search to acquire those neighbors
+	string neighbor_input = "und5expdata.txt";								// If neighbor list has been calculated previously, then instead of NULL, the file will contain the index of a particle, number of neighbors and the radius of search to acquire those neighbors
 	string output_capsomer = input_file + "caps.vtk";			// Output file name that has the information of the capsomer cells
 	string output_outline = input_file + "outline.vtk";			// Output file name that has the information of capsomer outline
 	clock_t starttime = clock();
@@ -62,8 +62,8 @@ int main() {
 	vector<Vector3d>pos;				// position of particles
 	//n_part : number of particles -> can be changed according to the system
 
-	const int n_part = 396;			// Total Number of Particles in the inputfile
-	const int nonrepeat_part = 396;
+	const int n_part = 1134;			// Total Number of Particles in the inputfile
+	const int nonrepeat_part = 1000;
 
 	//---------------------Reading particle positions-------------------//
 	string myText;
@@ -108,11 +108,11 @@ int main() {
 		}
 		MyReadFile1.close();
 	}
-	ofstream m;
-	//m.open("PositionsFile2.txt");
+	//ofstream m;									
+	//m.open("PositionsFile2.txt");						//............... File to keep the record of initial neighboring particles' container for debugging purposes....//
 	//-------------Neighbour search algorithm using moving window-----------------//
 	if (neighbor_input == "NULL") {
-		m.open(input_file + "pos.txt");
+		//m.open(input_file + "pos.txt");
 		for (int i = 0; i < n_part; i++) {
 			Real isstop = 0;
 			Real init_r = initialr;
@@ -133,14 +133,12 @@ int main() {
 						count_n++;
 					}
 				}
-
 				Real countdist = count_n - maxn;
 				lastcount_n = count_n;
 				if (maxn < count_n) {
 					maxn = count_n;
 					maxr = init_r;
 				}
-
 				list_p.push_back(count_n);
 				list_n.push_back(init_r);
 				if (init_r > R_c || count_n > 15 || countdist < -2) {
@@ -150,11 +148,10 @@ int main() {
 				init_r += dr;
 			}
 			n_neighbor.push_back(maxr);
-			m << i << " " << maxn << " " << maxr << endl;
-			cout << i << " " << maxn << " " << maxr << endl;
-
+			//m << i << " " << maxn << " " << maxr << endl;
+			//cout << i << " " << maxn << " " << maxr << endl;				//..................Printing the radius of search for each particle and the number of particles found as initial neighbors for debugging...............// 
 		}
-		m.close();
+		//m.close();
 	}
 	//-------------Build-up of particle neighbour containers------------//
 	for (int i = 0; i < n_part; i++) {
@@ -304,7 +301,6 @@ int main() {
 				int deletnow = P[ite].deletenode;
 				int dltfr = P[ite].deletefrom;
 				int deletat;
-				if (i == 3)cout << deletnow << " " << dltfr << endl;
 				for (int y = 0; y < pos_neighbor[dltfr].size(); y++) {
 					if (deletnow == pos_neighbor[dltfr].at(y)) {
 						deletat = y;
@@ -370,13 +366,13 @@ int main() {
 			}
 		}
 	}
+
 	// For each particle going through its ordered neighbors and deleting overlaps due to distantly placed particles (if two adjacent neighbors of a neighbor are connected, then that is deleted)
 	for (int i = 0; i < n_part; i++) {
 		if (pos_neighbor[i].size() < 3)continue;
 		vector<int>finallist;
 		finallist = neighborordering(i, pos_neighbor, pos);
 		finallist.pop_back();
-		//cout << "testfebruary" << endl;
 		if (finallist.size() == 3) {
 			int nextcheck = finallist[2];
 			int pastcheck = finallist[0];
@@ -394,7 +390,6 @@ int main() {
 				int nextcheck = finallist[(j + 1) % finallist.size()];
 				int pastcheck = finallist[((j - 1) + finallist.size()) % finallist.size()];
 				if (vector_search(pos_neighbor[pastcheck], nextcheck) == 1) {
-					//if (dist(pos.at(finallist.at(j)), pos.at(i)) < dist(pos.at(nextcheck), pos.at(i)) && dist(pos.at(finallist.at(j)), pos.at(i)) < dist(pos.at(pastcheck), pos.at(i)))continue;
 					int deletenow = finallist[j];
 					int deletfrom = i;
 					if (vector_search(pos_neighbor[deletfrom], deletenow) == 0)continue;
@@ -406,7 +401,6 @@ int main() {
 			}
 		}
 	}
-
 
 	//--------------------Finding single edge-connections for basis of hole formation--------------//
 	vector<vector<int>>single_conn;								// Connectivity of single edges
@@ -655,7 +649,6 @@ int main() {
 					NNco++;
 					disttot += r;
 					total++;
-					if (i == 7)cout << nodenow << " " << holes[i][k] << endl;
 				}
 			}
 			int actualnnco = NNco;
@@ -676,11 +669,6 @@ int main() {
 		}
 		//sorting the list of nodes to be fixed according to which ones has the closest fixes
 		sort(nodes, nodes + holes.at(i).size() - 1, CompareData);
-		if (i == -1) {
-			for (int j = 0; j < holesize; j++) {
-				cout << nodes[j].avgdist << " " << nodes[j].node << endl;
-			}
-		}
 
 		for (int j = 0; j < holesize; j++) {
 			int fixing_now = nodes[j].node;
@@ -803,7 +791,6 @@ int main() {
 									int option6;
 									int pastpos2 = find_ind(finallist_checkind, currentnode_fix);
 									int ns2 = finallist_checkind.size();
-									if (currentnode_fix == 327 && confirmfixednode == 387)print_vector(finallist_checkind);
 									if (pastpos2 == 0) {
 										option5 = finallist_checkind[1];
 										option6 = finallist_checkind[finallist_checkind.size() - 2];
@@ -838,7 +825,6 @@ int main() {
 		vector<int>finallist;
 		finallist = neighborordering(i, pos_neighbor, pos);
 		finallist.pop_back();
-		//cout << "testfebruary" << endl;
 		if (finallist.size() == 3) {
 			int nextcheck = finallist[2];
 			int pastcheck = finallist[0];
@@ -856,7 +842,6 @@ int main() {
 				int nextcheck = finallist[(j + 1) % finallist.size()];
 				int pastcheck = finallist[((j - 1) + finallist.size()) % finallist.size()];
 				if (vector_search(pos_neighbor[pastcheck], nextcheck) == 1) {
-					//if (dist(pos.at(finallist.at(j)), pos.at(i)) < dist(pos.at(nextcheck), pos.at(i)) && dist(pos.at(finallist.at(j)), pos.at(i)) < dist(pos.at(pastcheck), pos.at(i)))continue;
 					int deletenow = finallist[j];
 					int deletfrom = i;
 					if (vector_search(pos_neighbor[deletfrom], deletenow) == 0)continue;
@@ -915,7 +900,6 @@ int main() {
 		for (int j = 0; j < isize; j++) {
 			int n_ind = pos_neighbor[i][j];
 			if (n_ind == emptynode2)continue;
-			//cout << n_ind << "problems" << endl;
 			Vector3d on(pos.at(n_ind)(0) - pos.at(i)(0), pos.at(n_ind)(1) - pos.at(i)(1), pos.at(n_ind)(2) - pos.at(i)(2));
 			pair<Real, Real>resultangles;
 			resultangles = angle(ot, on);
@@ -993,7 +977,6 @@ int main() {
 		for (int j = 1; j < isize1; j++) {
 			int n_ind1 = pos_neighbor[i1][j];
 			if (n_ind1 == emptynode2)continue;
-			//cout << n_ind1 << "problems" << endl;
 			Vector3d on1(pos.at(n_ind1)(0) - pos.at(i1)(0), pos.at(n_ind1)(1) - pos.at(i1)(1), pos.at(n_ind1)(2) - pos.at(i1)(2));
 			pair<Real, Real>resultangles1;
 			resultangles1 = angle(ot1, on1);
@@ -1056,7 +1039,6 @@ int main() {
 			b1 = vector_p1[0];
 			b2 = vector_n1[0];
 		}
-		if (emptynode1 == 1 || emptynode2 == 1)cout << emptynode1 << " " << emptynode2 << " " << a1 << " " << a2 << " " << b1 << " " << b2 << endl;
 		if (dist(pos[a1], pos[b1]) < dist(pos[a1], pos[b2])) {
 			vector<int>sortfound;
 			sortfound.push_back(a1);
@@ -1153,7 +1135,7 @@ int main() {
 
 	//-------------------------------Build-up of capsomers-----------------------------//
 	for (int i = 0; i < nonrepeat_part; i++) {
-		if (pos_neighbor[i].size() > 3) {
+		if (pos_neighbor[i].size() > 3) {       //.....................Only making capsomer cells for cell valance 4 and greater (can be changed if needed) ..................//
 			totalpoints += pos_neighbor[i].size();
 			totalcaps++;
 			vtknodes.push_back(i);
@@ -1163,25 +1145,25 @@ int main() {
 
 	ofstream f;
 	ofstream fo;
-	//ofstream ft;
-	//ofstream fp;
+	ofstream ft;
+	ofstream fp;
 	int trianglecount = 0;
-	f.open(output_capsomer);
+	f.open(output_capsomer);															//.......................This file creates the capsomers in vtk..........................//
 	f << "# vtk DataFile Version 1.0\nvtk output\nASCII\nDATASET UNSTRUCTURED_GRID\nPOINTS ";
 	f << nonrepeat_part + totalpoints;
 	f << " float\n";
 
-	fo.open(output_outline);
+	fo.open(output_outline);															//.......................This file creates the capsomers' outline in vtk..........................//
 	fo << "# vtk DataFile Version 1.0\nvtk output\nASCII\nDATASET UNSTRUCTURED_GRID\nPOINTS ";
 	fo << nonrepeat_part + totalpoints;
 	fo << " float\n";
 
-	//ft.open(input_file + "_triangle.vtk");
-	//ft << "# vtk DataFile Version 1.0\nvtk output\nASCII\nDATASET UNSTRUCTURED_GRID\nPOINTS ";
-	//ft << nonrepeat_part + totalpoints;
-	//ft << " float\n";
+	ft.open(input_file + "_triangle.vtk");												//.......................This file creates the triangulation among the particles in vtk..........................//
+	ft << "# vtk DataFile Version 1.0\nvtk output\nASCII\nDATASET UNSTRUCTURED_GRID\nPOINTS ";
+	ft << nonrepeat_part + totalpoints;
+	ft << " float\n";
 
-	//fp.open(input_file + "data.txt");
+	fp.open(input_file + "data.txt");													//.......................This file creates the final neighboring particles information for each particle in vtk..........................//
 
 	for (int i = 0; i < nonrepeat_part; i++) {
 		f << pos.at(i)(0) << " " << pos.at(i)(1) << " " << pos.at(i)(2) << endl;
@@ -1193,11 +1175,11 @@ int main() {
 		if (isize > 3) {
 			vector<int>finalcaps;
 			vector<int>finallist;
-			finallist = neighborordering(i,pos_neighbor,pos);
+			finallist = neighborordering(i, pos_neighbor, pos);
 			for (int fsize = 0; fsize < finallist.size() - 1; fsize++) {
-				//fp << finallist[fsize] << " ";
+				fp << finallist[fsize] << " ";
 			}
-			//fp << endl;
+			fp << endl;
 			vector<Vector3d>bcs;
 			for (int j = 0; j < isize; j++) {
 				int alreadypushed = 0;
@@ -1216,9 +1198,9 @@ int main() {
 				}
 				Vector3d test = findbc(pos.at(i), pos.at(finallist.at(j)), pos.at(finallist.at(j + 1)));
 				bcs.push_back(test);
-				//ft << pos.at(i)(0) << " " << pos.at(i)(1) << " " << pos.at(i)(2) << endl;
-				//ft << pos.at(finallist.at(j))(0) << " " << pos.at(finallist.at(j))(1) << " " << pos.at(finallist.at(j))(2) << endl;
-				//ft << pos.at(finallist.at(j + 1))(0) << " " << pos.at(finallist.at(j + 1))(1) << " " << pos.at(finallist.at(j + 1))(2) << endl;
+				ft << pos.at(i)(0) << " " << pos.at(i)(1) << " " << pos.at(i)(2) << endl;
+				ft << pos.at(finallist.at(j))(0) << " " << pos.at(finallist.at(j))(1) << " " << pos.at(finallist.at(j))(2) << endl;
+				ft << pos.at(finallist.at(j + 1))(0) << " " << pos.at(finallist.at(j + 1))(1) << " " << pos.at(finallist.at(j + 1))(2) << endl;
 				trianglecount++;
 				if (alreadypushed == 0) {
 					f << test(0) << " " << test(1) << " " << test(2) << " " << endl;
@@ -1269,19 +1251,19 @@ int main() {
 
 	fo << totalcaps << " " << totalpoints + 2 * totalcaps << endl;
 
-	//ft << "\n";
-	//ft << "CELLS ";
-	//ft << trianglecount << " " << 4 * trianglecount << endl;
+	ft << "\n";
+	ft << "CELLS ";
+	ft << trianglecount << " " << 4 * trianglecount << endl;
 
 	int triangle = 0;
 	for (int i = 0; i < trianglecount; i++) {
-		//ft << "3 " << triangle << " " << triangle + 1 << " " << triangle + 2 << endl;
+		ft << "3 " << triangle << " " << triangle + 1 << " " << triangle + 2 << endl;
 		triangle = triangle + 3;
 	}
-	//ft << "\n";
-	//ft << "CELL_TYPES " << trianglecount << endl;
+	ft << "\n";
+	ft << "CELL_TYPES " << trianglecount << endl;
 	for (int i = 0; i < trianglecount; i++) {
-		//ft << "5" << endl;
+		ft << "5" << endl;
 	}
 
 	int cellnow = nonrepeat_part;
@@ -1344,11 +1326,11 @@ int main() {
 			f << "0.3\n";
 		}
 	}
-	cout << triangle << " is the number of vertices in Triangle file" << endl;
+	cout << triangle << " is the number of vertices in triangulation information file" << endl;			//................................Use this as the number of particles in the triangulation file............................//
 	f.close();
 	fo.close();
-	//ft.close();
-	//fp.close();
+	ft.close();
+	fp.close();
 	clock_t stoptime = clock();
 	Real sum = ((double)(stoptime - starttime) / CLOCKS_PER_SEC);
 	cout << "RunningTime: " << sum << endl;
