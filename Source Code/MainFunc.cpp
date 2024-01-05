@@ -57,7 +57,7 @@ int main() {
 	bool swhole = 1;					// value = 1 if repairing gaps is activated, 0 otherwise (Sec. 2.1.3 in the manuscript)
 	bool sweempty = 1;					// value = 1 if empty regions fix is activated, 0 otherwise (Sec. 2.1.4 in the manuscript)
 
-	//..................Initialiations.....................//
+	//..................Initializations.....................//
 	clock_t starttime = clock();				// Function to calculate algorithm's processor run time
 	int totalpoints = 0;					// Total number of points in the final VTK file containing all the capsomers (this includes the initial set of points and the vertices of the capsomers)
 	founds Emp[3000];					// Data structure for averaging points in empty region - (container to store the vertices of quadrilaterals that uses average capsomer vertices position described in section 2.1.4
