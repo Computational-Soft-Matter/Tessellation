@@ -43,31 +43,33 @@ bool CompareDatadlt(storedelete a, storedelete b)
 //--------------Starting Main Function-------------------//
 
 int main() {
-	string input_file = "Figure19b";								// File contains the 3D coordinates of the colloidal particles
+	string input_file = "Figure19b";			// File containing the 3D coordinates of the colloidal particles
 	string input_extension = ".vtk";
-	string neighbor_input = "NULL";								// If neighbor list has been calculated previously, then instead of NULL, the file will contain the index of a particle, number of neighbors and the radius of search to acquire those neighbors
-	string output_capsomer = input_file + "caps.vtk";			// Output file name that has the information of the capsomer cells
-	string output_outline = input_file + "otln.vtk";			// Output file name that has the information of capsomer outline
+	string neighbor_input = "NULL";				// If neighbor list has been calculated previously, then instead of NULL, the file will contain the index of a particle, number of neighbors and the radius of search to acquire those neighbors
+	string output_capsomer = input_file + "caps.vtk";	// Output file name that has the information of the capsomer cells
+	string output_outline = input_file + "otln.vtk";	// Output file name that has the information of capsomer outline
+
+	const int n_part = 1134;				// Total Number of Particles in the inputfile
+	const int nonrepeat_part = 1000;
+	bool swdel1 = 1;					// 1 if deleting process-1 is activated, 0 otherwise
+	bool swdel2 = 1;					// 1 if deleting process-2 is activated, 0 otherwise
+	bool swhole = 1;					// 1 if holes patch up is activated, 0 otherwise
+	bool sweempty = 1;					// 1 if empty regions fix is activated, 0 otherwise
+	
 	clock_t starttime = clock();
 	int totalpoints = 0;					// Total number of points in the final VTK file containing all the capsomers (this includes the initial set of points and the vertices of the capsomers)
-	founds Emp[3000];						// Data structure for averaging points in empty region - (container to store the vertices of quadrilaterals that uses average capsomer vertices position described in section 2.1.4
-	int empcount = 0;						// Data structure for averaging points in empty region
-	int totalcaps = 0;						// total number of capsomers in the final vtk file
-	vector<Real>n_neighbor;		            // neighbour information of target particles - first -> number of n_neighbor, second-> radius range of search
-	vector<int>vtknodes;					// particle IDs for final VTK file (including capsomer vertices)
-	vector<Real>avg_neighbor;				// average distances for n_neighbor
-	vector<pair<int, int>>single_edges;		// pairs of single edge connections
-	map<int, int>marked;                    // marked node which has single edge connections and changed capsomers
-	vector<vector<int>>pos_neighbor;		// neighbour nodes of target particles
-	vector<Vector3d>pos;				// position of particles
+	founds Emp[3000];					// Data structure for averaging points in empty region - (container to store the vertices of quadrilaterals that uses average capsomer vertices position described in section 2.1.4
+	int empcount = 0;					// Data structure for averaging points in empty region
+	int totalcaps = 0;					// Total number of capsomers in the final vtk file
+	vector<Real>n_neighbor;		            		// Neighbour information of target particles - first -> number of n_neighbor, second-> radius range of search
+	vector<int>vtknodes;					// Particle IDs for final VTK file (including capsomer vertices)
+	vector<Real>avg_neighbor;				// Average distances for n_neighbor
+	vector<pair<int, int>>single_edges;			// Pairs of single edge connections
+	map<int, int>marked;                    		// Marked node which has single edge connections and changed capsomers
+	vector<vector<int>>pos_neighbor;			// Neighbour nodes of target particles
+	vector<Vector3d>pos;					// Position of particles
 	//n_part : number of particles -> can be changed according to the system
-
-	const int n_part = 1134;			// Total Number of Particles in the inputfile
-	const int nonrepeat_part = 1000;
-	bool swdel1 = 1;				// 1 if deleting process-1 is activated, 0 otherwise
-	bool swdel2 = 1;				// 1 if deleting process-2 is activated, 0 otherwise
-	bool swhole = 1;				// 1 if holes patch up is activated, 0 otherwise
-	bool sweempty = 1;				// 1 if empty regions fix is activated, 0 otherwise
+	
 	//---------------------Reading particle positions-------------------//
 	string myText;
 	ifstream MyReadFile(input_file + input_extension);
@@ -238,36 +240,36 @@ int main() {
 		avg_neighbor.push_back(total / nsize);
 	}
 
-	vector<pair<Real,vector<int>>>corrbef;								// Data structure for storing deletable connections
-	map<pair<int, int>, bool>donebef;									// Data structure for storing deleted connections
+	vector<pair<Real,vector<int>>>corrbef;							// Data structure for storing deletable connections
+	map<pair<int, int>, bool>donebef;							// Data structure for storing deleted connections
 	//-----------------Deleting overlapping particle edge-connections--------------//
 	int Corrcount = 0;
 	if (swdel1 == 1) {
 		for (int i = 0; i < n_part; i++) {
-			int i_size = pos_neighbor[i].size();						// Size of neighbor container for particle 'i'
+			int i_size = pos_neighbor[i].size();					// Size of neighbor container for particle 'i'
 			for (int j = 0; j < i_size; j++) {
-				int node_j = pos_neighbor[i].at(j);						// Iterating through particle i's neighborhood and establishing multiple shared particle connections
+				int node_j = pos_neighbor[i].at(j);				// Iterating through particle i's neighborhood and establishing multiple shared particle connections
 				if (donebef[make_pair(node_j, i)] == 1)continue;
 				vector<int>deletelist;
 				for (int k = 0; k < i_size; k++) {
 					int nodenow = pos_neighbor[i].at(k);
 					if (nodenow != i || nodenow != node_j) {
 						if (vector_search(pos_neighbor[i], nodenow) == 1 && vector_search(pos_neighbor[node_j], nodenow) == 1) {
-							deletelist.push_back(nodenow);				// For particle j in particle i's neighborhood, store particles that are commonly shared by i and j
+							deletelist.push_back(nodenow);		// For particle j in particle i's neighborhood, store particles that are commonly shared by i and j
 						}
 					}
 				}
-				map<Real, Real>p_angles;								// Container for particles on positive side of connection line between i and j
-				map<Real, Real>n_angles;								// Container for particles on negative side of connection line between i and j
-				//Building vector from i-th node to 1st neighbour node
+				map<Real, Real>p_angles;					// Container for particles on positive side of connection line between i and j
+				map<Real, Real>n_angles;					// Container for particles on negative side of connection line between i and j
+				// Building vector from i-th node to 1st neighbour node
 				int t_ind = node_j;
 				Vector3d ot(pos.at(t_ind)(0) - pos.at(i)(0), pos.at(t_ind)(1) - pos.at(i)(1), pos.at(t_ind)(2) - pos.at(i)(2));
-				Real testminimum = 999;									// container for closest angle to vector 'ot'
-				int test_n = 1;											// safeguard if minimum angle not found
-				int change = 0;											// Check value to see if minimum angle found		
+				Real testminimum = 999;						// Container for closest angle to vector 'ot'
+				int test_n = 1;							// Safeguard if minimum angle not found
+				int change = 0;							// Check value to see if minimum angle found		
 				Real testangle;
 				Real testangletest;
-				//find angle with the initial vector with the rest of the nodes and find the minimum angle constructing vector
+				// Find angle with the initial vector with the rest of the nodes and find the minimum angle constructing vector
 				for (int j = 0; j < deletelist.size(); j++) {
 					int n_ind = deletelist[j];
 					Vector3d on(pos.at(n_ind)(0) - pos.at(i)(0), pos.at(n_ind)(1) - pos.at(i)(1), pos.at(n_ind)(2) - pos.at(i)(2));
@@ -283,7 +285,7 @@ int main() {
 						}
 					}
 				}
-				//Building vector from i-th node to 1st neighbour node
+				// Building vector from i-th node to 1st neighbour node
 				Vector3d on(pos.at(test_n)(0) - pos.at(i)(0), pos.at(test_n)(1) - pos.at(i)(1), pos.at(test_n)(2) - pos.at(i)(2));
 				Vector3d t_cross = ot.cross(on);
 				if (change != 0) {
@@ -312,8 +314,8 @@ int main() {
 				}
 				vector<Real>vector_p;
 				vector<Real>vector_n;
-				vector_p = sort(p_angles);							// sorted list of particles on the positive side of i and j according to angle
-				vector_n = sort(n_angles);							// sorted list of particles on the negative side of i and j according to angle
+				vector_p = sort(p_angles);		// Sorted list of particles on the positive side of i and j according to angle
+				vector_n = sort(n_angles);		// Sorted list of particles on the negative side of i and j according to angle
 				int psize = vector_p.size();
 				if (psize > 1) {
 					for (int ite = 0; ite < vector_p.size(); ite++) {
@@ -355,29 +357,29 @@ int main() {
 			int cornow = corrbef.size() - 1;
 			int i = corrbef[cornow].second[0];
 			int i_size = pos_neighbor[i].size();
-			int node_j = corrbef[cornow].second[1];						// Iterating through particle i's neighborhood and establishing multiple shared particle connections
+			int node_j = corrbef[cornow].second[1];				// Iterating through particle i's neighborhood and establishing multiple shared particle connections
 			int del = corrbef[cornow].second[2];
 			vector<int>deletelist;
 			for (int k = 0; k < i_size; k++) {
 				int nodenow = pos_neighbor[i].at(k);
 				if (nodenow != i || nodenow != node_j) {
 					if (vector_search(pos_neighbor[i], nodenow) == 1 && vector_search(pos_neighbor[node_j], nodenow) == 1) {
-						deletelist.push_back(nodenow);				// For particle j in particle i's neighborhood, store particles that are commonly shared by i and j
+						deletelist.push_back(nodenow);		// For particle j in particle i's neighborhood, store particles that are commonly shared by i and j
 					}
 				}
 			}
 			
-			map<Real, Real>p_angles;								// Container for particles on positive side of connection line between i and j
-			map<Real, Real>n_angles;								// Container for particles on negative side of connection line between i and j
-			//Building vector from i-th node to 1st neighbour node
+			map<Real, Real>p_angles;				// Container for particles on positive side of connection line between i and j
+			map<Real, Real>n_angles;				// Container for particles on negative side of connection line between i and j
+			// Building vector from i-th node to 1st neighbour node
 			int t_ind = node_j;
 			Vector3d ot(pos.at(t_ind)(0) - pos.at(i)(0), pos.at(t_ind)(1) - pos.at(i)(1), pos.at(t_ind)(2) - pos.at(i)(2));
-			Real testminimum = 999;									// container for closest angle to vector 'ot'
-			int test_n = 1;											// safeguard if minimum angle not found
-			int change = 0;											// Check value to see if minimum angle found		
+			Real testminimum = 999;					// Container for closest angle to vector 'ot'
+			int test_n = 1;						// Safeguard if minimum angle not found
+			int change = 0;						// Check value to see if minimum angle is found		
 			Real testangle;
 			Real testangletest;
-			//find angle with the initial vector with the rest of the nodes and find the minimum angle constructing vector
+			// Find angle with the initial vector with the rest of the nodes and find the minimum angle constructing vector
 			for (int j = 0; j < deletelist.size(); j++) {
 				int n_ind = deletelist[j];
 				Vector3d on(pos.at(n_ind)(0) - pos.at(i)(0), pos.at(n_ind)(1) - pos.at(i)(1), pos.at(n_ind)(2) - pos.at(i)(2));
@@ -393,7 +395,7 @@ int main() {
 					}
 				}
 			}
-			//Building vector from i-th node to 1st neighbour node
+			// Building vector from i-th node to 1st neighbour node
 			Vector3d on(pos.at(test_n)(0) - pos.at(i)(0), pos.at(test_n)(1) - pos.at(i)(1), pos.at(test_n)(2) - pos.at(i)(2));
 			Vector3d t_cross = ot.cross(on);
 			if (change != 0) {
@@ -423,8 +425,8 @@ int main() {
 			bool deleted = 0;
 			vector<Real>vector_p;
 			vector<Real>vector_n;
-			vector_p = sort(p_angles);							// sorted list of particles on the positive side of i and j according to angle
-			vector_n = sort(n_angles);							// sorted list of particles on the negative side of i and j according to angle
+			vector_p = sort(p_angles);		// Sorted list of particles on the positive side of i and j according to angle
+			vector_n = sort(n_angles);		// Sorted list of particles on the negative side of i and j according to angle
 			int psize = vector_p.size();
 			int nsize = vector_n.size();
 			bool pyes = 0;
@@ -548,10 +550,10 @@ int main() {
 	}
 	
 	//--------------------Finding single edge-connections for basis of hole formation--------------//
-	vector<vector<int>>single_conn;								// Connectivity of single edges
-	vector<pair<int, int>>single_edge;							// Container for pairs of single edges
-	map<int, bool>visited;										// Check if node already visited
-	vector<int>listofsingles;									// list of single edged nodes which needs to be repaired
+	vector<vector<int>>single_conn;					// Connectivity of single edges
+	vector<pair<int, int>>single_edge;				// Container for pairs of single edges
+	map<int, bool>visited;						// Check if node already visited
+	vector<int>listofsingles;					// List of single edge nodes which needs to be repaired
 	for (int i = 0; i < n_part; i++) {
 		single_conn.push_back(vector<int>());
 	}
@@ -586,13 +588,13 @@ int main() {
 		}
 	}
 	//---------------------Hole connectivity formation-----------------//
-	map<int, bool>worked;									// container to indicate how many times a single edged node has been worked with
-	vector<vector<int>>holes;								// container for all the chain of holes
+	map<int, bool>worked;						// Container to indicate how many times a single edged node has been worked with
+	vector<vector<int>>holes;					// Container for all the chain of holes
 	for (int i = 0; i < listofsingles.size(); i++) {
-		int workingnow = listofsingles.at(i);				// single edged node that is being used to create chain of hole 
+		int workingnow = listofsingles.at(i);			// Single edged node that is being used to create chain of hole 
 		if (single_conn.at(workingnow).size() >= 2) {
 			if ((worked[workingnow] == 0 && single_conn.at(workingnow).size() >= 2) || (worked[workingnow] == 1 && single_conn.at(workingnow).size() > 2)) {
-				vector<int>hole;							// container for the chain of hole
+				vector<int>hole;			// Sontainer for the chain of hole
 				hole.push_back(workingnow);
 				// Finding the next node in chain of hole depending on past hole constructions
 				int next = -5;
@@ -629,9 +631,9 @@ int main() {
 				int stop = 0;					// Stopping crtieria for the while loop
 				while (next != workingnow && stop == 0) {
 					if (single_conn.at(next).size() < 2) {
-						stop = 1;											// chain ends if no more single edged nodes to discover
+						stop = 1;						// Chain ends if no more single edged nodes to discover
 					}
-					else if (single_conn.at(next).size() == 2) {			// this condition is visited if their are one single edged node to discover from a position in the chain of hole
+					else if (single_conn.at(next).size() == 2) {			// This condition is visited if their are one single edged node to discover from a position in the chain of hole
 						if (single_conn.at(next).at(0) == past) {
 							past = next;
 							next = single_conn.at(next).at(1);
@@ -752,14 +754,14 @@ int main() {
 	//-----------------------Hole Repair-------------------------//
 	if (swhole == 1) {
 		for (int i = 0; i < holes.size(); i++) {
-			int holesize = holes.at(i).size() - 1;				// size of current chain of hole
-			vector<vector<int>>fixes;							// container of list of fixes for each node in hole
+			int holesize = holes.at(i).size() - 1;				// Size of current chain of hole
+			vector<vector<int>>fixes;					// Container of list of fixes for each node in hole
 			storedelete NN[1000];
 			int NNco = 0;
 			for (int j = 0; j < holes.at(i).size() - 1; j++) {
 				int nodenow = holes.at(i).at(j);
-				vector<int>possiblefixes;						// container of fixes for nodenow - j-th node in chain of hole
-				possiblefixes.push_back(nodenow);				// for j-th node in chain of hole, find which nodes can be patched up with j
+				vector<int>possiblefixes;				// Container of fixes for nodenow - j-th node in chain of hole
+				possiblefixes.push_back(nodenow);			// For j-th node in chain of hole, find which nodes can be patched up with j
 				int total = 0;
 				Real disttot = 0;
 				for (int k = 0; k < holes.at(i).size() - 1; k++) {
@@ -794,7 +796,7 @@ int main() {
 					}
 				}
 			}
-			//sorting the list of nodes to be fixed according to which ones has the closest fixes
+			// Sorting the list of nodes to be fixed according to which ones has the closest fixes
 			int actualnnco = NNco;
 			for (int ite = NNco; ite < 1000; ite++) {
 				NN[ite].dist = 0;
@@ -817,28 +819,28 @@ int main() {
 					singleedge_fixingnow.push_back(make_pair(holes.at(i).at(fixing_now_ind), holes.at(i).at(holes.at(i).size() - 2)));
 				}
 				for (int l = 0; l < 2; l++) {
-					int currentnode_fix = singleedge_fixingnow.at(l).first;    // the node that is being fixed
-					int adjacentnode = singleedge_fixingnow.at(l).second;	   // adjacent node in the hole chain
+					int currentnode_fix = singleedge_fixingnow.at(l).first;    // The node that is being fixed
+					int adjacentnode = singleedge_fixingnow.at(l).second;	   // Adjacent node in the hole chain
 					int deleted = 0;
 					int currentsize = pos_neighbor[currentnode_fix].size();
 					int commoncount = 0;
 					for (int k = 0; k < currentsize + deleted; k++) {
-						int nodenow = pos_neighbor[currentnode_fix].at(k);		// checking if this node is common
+						int nodenow = pos_neighbor[currentnode_fix].at(k);		// Checking if this node is common
 						if (nodenow != currentnode_fix && nodenow != adjacentnode) {
 							if (vector_search(pos_neighbor[currentnode_fix], nodenow) == 1 && vector_search(pos_neighbor[adjacentnode], nodenow) == 1) {
 								commoncount++;
 							}
 						}
 					}
-					if (currentsize > 2 && pos_neighbor[adjacentnode].size() > 2) {			// if fixing node is still a single edged connection then keep going for fix	
-						int confirmfixednode = -5;							// If this is not -5 after checks, then this will contain the node that will be connected to the current node that is being fixed
+					if (currentsize > 2 && pos_neighbor[adjacentnode].size() > 2) {			// If fixing node is still a single edged connection then keep going for fix	
+						int confirmfixednode = -5;						// If this is not -5 after checks, then this will contain the node that will be connected to the current node that is being fixed
 						int currentfix = NN[j].deletenode;
 						int checkvalueforfix = 0;
 						if (currentfix != currentnode_fix && vector_search(pos_neighbor.at(currentnode_fix), currentfix) == 0)
 						{
 							if (dist(pos.at(currentnode_fix), pos.at(currentfix)) < 1.0 * R_c) {
-								confirmfixednode = currentfix;					// passed 1st check
-								// checking problems for currentnode_fix for connecting with confirmfixednode
+								confirmfixednode = currentfix;				// Passed 1st check
+								// Checking problems for currentnode_fix for connecting with confirmfixednode
 								vector<int>newcontainer_currentnode_fix;
 								newcontainer_currentnode_fix = pos_neighbor[currentnode_fix];
 								newcontainer_currentnode_fix.push_back(confirmfixednode);
@@ -857,7 +859,7 @@ int main() {
 									option2 = finallist_currentnode_fix[pastpos - 1];
 								}
 
-								// checking problems for confirmfixednode for connecting with currentnode_fix
+								// Checking problems for confirmfixednode for connecting with currentnode_fix
 								vector<int>newcontainer_confirmfixednode;
 								newcontainer_confirmfixednode = pos_neighbor[confirmfixednode];
 								newcontainer_confirmfixednode.push_back(currentnode_fix);
@@ -875,7 +877,7 @@ int main() {
 									option3 = finallist_confirmfixednode[pastpos1 + 1];
 									option4 = finallist_confirmfixednode[pastpos1 - 1];
 								}
-								//Finding if this fix is creating any problem with any other common nodes of the two nodes being fixed
+								// Finding if this fix is creating any problem with any other common nodes of the two nodes being fixed
 								vector<int>common;
 								for (int iter = 0; iter < pos_neighbor[currentnode_fix].size(); iter++) {
 									if (vector_search(pos_neighbor[confirmfixednode], pos_neighbor[currentnode_fix][iter]) == 1) {
@@ -924,7 +926,7 @@ int main() {
 	}
 
 	//--------------------Finding empty connections--------------------------//
-	vector<pair<int, int>>empty_connection;								// pairs with no common neighbor between them
+	vector<pair<int, int>>empty_connection;				// Pairs with no common neighbor between them
 	for (int i = 0; i < n_part; i++) {
 		int isize = pos_neighbor[i].size();
 		for (int j = 0; j < isize; j++) {
