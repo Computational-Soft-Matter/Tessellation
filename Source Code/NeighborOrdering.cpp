@@ -18,12 +18,12 @@ namespace Tessellation {
 		//Building vector from i-th node to 1st neighbour node
 		int t_ind = pos_neighbor[i][0];
 		Vector3d ot(pos.at(t_ind)(0) - pos.at(i)(0), pos.at(t_ind)(1) - pos.at(i)(1), pos.at(t_ind)(2) - pos.at(i)(2));
-		Real testminimum = 999;						// container for closest angle to vector 'ot'
-		int test_n = 1;								// safeguard if minimum angle not found
-		int change = 0;								// safeguard if minimum angle not found
+		Real testminimum = 999;						// Container for closest angle to vector 'ot'
+		int test_n = 1;							// Safeguard if minimum angle not found
+		int change = 0;							// Safeguard if minimum angle not found
 		Real testangle;
 		Real nochangetestangle;
-		//find angle with the initial vector with the rest of the nodes and find the minimum angle constructing vector on the positive side
+		// Find angle with the initial vector with the rest of the nodes and find the minimum angle constructing vector on the positive side
 		for (int j = 1; j < i_size; j++) {
 			int n_ind = pos_neighbor[i][j];
 			Vector3d on(pos.at(n_ind)(0) - pos.at(i)(0), pos.at(n_ind)(1) - pos.at(i)(1), pos.at(n_ind)(2) - pos.at(i)(2));
@@ -40,7 +40,7 @@ namespace Tessellation {
 				}
 			}
 		}
-		// if no angle found on the positive side, then put the first neighbor as reference
+		// If no angle found on the positive side, then put the first neighbor as reference
 		if (change == 0) {
 			test_n = pos_neighbor[i][1];
 			p_angles[nochangetestangle] = test_n;
@@ -51,7 +51,7 @@ namespace Tessellation {
 		if (change != 0) {
 			p_angles[testangle] = test_n;
 		}
-		// iterating through neighbors to determine their side with respect to the reference neighbor
+		// Iterating through neighbors to determine their side with respect to the reference neighbor
 		for (int j = 1; j < i_size; j++) {
 			int n_ind = pos_neighbor[i][j];
 			if (n_ind != test_n) {
@@ -120,12 +120,12 @@ namespace Tessellation {
 		map<Real, Real>n_angles;
 		int t_ind = givencontainer[0];
 		Vector3d ot(pos.at(t_ind)(0) - pos.at(currentnode)(0), pos.at(t_ind)(1) - pos.at(currentnode)(1), pos.at(t_ind)(2) - pos.at(currentnode)(2));
-		Real testminimum = 999;						// container for closest angle to vector 'ot'
-		int test_n = 1;								// safeguard if minimum angle not found
-		int change = 0;								// safeguard if minimum angle not found
+		Real testminimum = 999;						// Container for closest angle to vector 'ot'
+		int test_n = 1;							// Safeguard if minimum angle not found
+		int change = 0;							// Safeguard if minimum angle not found
 		Real testangle;
 		Real nochangetestangle;
-		//find angle with the initial vector with the rest of the nodes and find the minimum angle constructing vector on the positive side
+		// Find angle with the initial vector with the rest of the nodes and find the minimum angle constructing vector on the positive side
 		for (int jj = 1; jj < isize; jj++) {
 			int n_ind = givencontainer[jj];
 			Vector3d on(pos.at(n_ind)(0) - pos.at(currentnode)(0), pos.at(n_ind)(1) - pos.at(currentnode)(1), pos.at(n_ind)(2) - pos.at(currentnode)(2));
@@ -143,7 +143,7 @@ namespace Tessellation {
 				}
 			}
 		}
-		// if no angle found on the positive side, then put the first neighbor as reference
+		// If no angle found on the positive side, then put the first neighbor as reference
 		if (change == 0) {
 			test_n = givencontainer[1];
 			p_angles[nochangetestangle] = test_n;
@@ -153,7 +153,7 @@ namespace Tessellation {
 		if (change != 0) {
 			p_angles[testangle] = test_n;
 		}
-		// iterating through neighbors to determine their side with respect to the reference neighbor
+		// Iterating through neighbors to determine their side with respect to the reference neighbor
 		for (int jj = 1; jj < isize; jj++) {
 			int n_ind = givencontainer[jj];
 			if (n_ind != test_n) {
@@ -178,8 +178,8 @@ namespace Tessellation {
 		}
 		vector<Real>vector_p;
 		vector<Real>vector_n;
-		vector_p = sort(p_angles);					// Sorted list of particles on positive side of connection line between i and reference
-		vector_n = sort(n_angles);					// Sorted list of particles on negative side of connection line between i and reference
+		vector_p = sort(p_angles);			// Sorted list of particles on positive side of connection line between i and reference
+		vector_n = sort(n_angles);			// Sorted list of particles on negative side of connection line between i and reference
 		// Building up of the final ordered list
 		if (vector_p.empty()) {
 			finallist.push_back(t_ind);
@@ -226,9 +226,9 @@ namespace Tessellation {
 		//Building vector from i-th node to 1st neighbour node
 		//int t_ind = pos_neighbor[i][0];
 		Vector3d ot(pos.at(t_ind)(0) - pos.at(i)(0), pos.at(t_ind)(1) - pos.at(i)(1), pos.at(t_ind)(2) - pos.at(i)(2));
-		Real testminimum = 999;						// container for closest angle to vector 'ot'
-		int test_n = 1;								// safeguard if minimum angle not found
-		int change = 0;								// safeguard if minimum angle not found
+		Real testminimum = 999;						// Container for closest angle to vector 'ot'
+		int test_n = 1;							// Safeguard if minimum angle not found
+		int change = 0;							// Safeguard if minimum angle not found
 		Real testangle;
 		Real nochangetestangle;
 		//find angle with the initial vector with the rest of the nodes and find the minimum angle constructing vector on the positive side
@@ -249,18 +249,18 @@ namespace Tessellation {
 				}
 			}
 		}
-		// if no angle found on the positive side, then put the first neighbor as reference
+		// If no angle found on the positive side, then put the first neighbor as reference
 		if (change == 0) {
 			test_n = pos_neighbor[i][1];
 			p_angles[nochangetestangle] = test_n;
 		}
 		Vector3d on(pos.at(test_n)(0) - pos.at(i)(0), pos.at(test_n)(1) - pos.at(i)(1), pos.at(test_n)(2) - pos.at(i)(2));				// reference neighbor with which other neighbors will be tested to find which side they are on
-		// creating a cross vector to test sides 
+		// Creating a cross vector to test sides 
 		Vector3d t_cross = ot.cross(on);
 		if (change != 0) {
 			p_angles[testangle] = test_n;
 		}
-		// iterating through neighbors to determine their side with respect to the reference neighbor
+		// Iterating through neighbors to determine their side with respect to the reference neighbor
 		for (int j = 0; j < i_size; j++) {
 			if (pos_neighbor[i][j] == t_ind)continue;
 			int n_ind = pos_neighbor[i][j];
@@ -286,9 +286,9 @@ namespace Tessellation {
 		}
 		vector<Real>vector_p;
 		vector<Real>vector_n;
-		vector_p = sort(p_angles);					// Sorted list of particles on positive side of connection line between i and reference
-		vector_n = sort(n_angles);					// Sorted list of particles on negative side of connection line between i and reference
-													// Building up of the final ordered list
+		vector_p = sort(p_angles);			// Sorted list of particles on positive side of connection line between i and reference
+		vector_n = sort(n_angles);			// Sorted list of particles on negative side of connection line between i and reference
+								// Building up of the final ordered list
 		if (vector_p.empty()) {
 			finallist.push_back(t_ind);
 			int nsize = vector_n.size();
