@@ -43,20 +43,22 @@ bool CompareDatadlt(storedelete a, storedelete b)
 //--------------Starting Main Function-------------------//
 
 int main() {
+	//........................User Inputs........................//
 	string input_file = "Figure19b";			// File containing the 3D coordinates of the colloidal particles
-	string input_extension = ".vtk";
+	string input_extension = ".vtk";			// Extension to the file containing the 3D coordinates of the colloidal particles
 	string neighbor_input = "NULL";				// If neighbor list has been calculated previously, then instead of NULL, the file will contain the index of a particle, number of neighbors and the radius of search to acquire those neighbors
 	string output_capsomer = input_file + "caps.vtk";	// Output file name that has the information of the capsomer cells
 	string output_outline = input_file + "otln.vtk";	// Output file name that has the information of capsomer outline
 
 	const int n_part = 1134;				// Total Number of Particles in the inputfile
-	const int nonrepeat_part = 1000;
-	bool swdel1 = 1;					// 1 if deleting process-1 is activated, 0 otherwise
-	bool swdel2 = 1;					// 1 if deleting process-2 is activated, 0 otherwise
-	bool swhole = 1;					// 1 if holes patch up is activated, 0 otherwise
-	bool sweempty = 1;					// 1 if empty regions fix is activated, 0 otherwise
-	
-	clock_t starttime = clock();
+	const int nonrepeat_part = 1000;			// Non repeating number of particles (This is equal to n_part for non periodic boundary cases)
+	bool swdel1 = 1;					// value = 1 if deleting process 1 is activated, 0 otherwise (Sec. 2.1.2 in the manuscript)
+	bool swdel2 = 1;					// value = 1 if deleting process 2 is activated, 0 otherwise (Sec. 2.1.2 in the manuscript)
+	bool swhole = 1;					// value = 1 if repairing gaps is activated, 0 otherwise (Sec. 2.1.3 in the manuscript)
+	bool sweempty = 1;					// value = 1 if empty regions fix is activated, 0 otherwise (Sec. 2.1.4 in the manuscript)
+
+	//..................Initialiations.....................//
+	clock_t starttime = clock();				// Function to calculate algorithm's processor run time
 	int totalpoints = 0;					// Total number of points in the final VTK file containing all the capsomers (this includes the initial set of points and the vertices of the capsomers)
 	founds Emp[3000];					// Data structure for averaging points in empty region - (container to store the vertices of quadrilaterals that uses average capsomer vertices position described in section 2.1.4
 	int empcount = 0;					// Data structure for averaging points in empty region
@@ -68,7 +70,6 @@ int main() {
 	map<int, int>marked;                    		// Marked node which has single edge connections and changed capsomers
 	vector<vector<int>>pos_neighbor;			// Neighbour nodes of target particles
 	vector<Vector3d>pos;					// Position of particles
-	//n_part : number of particles -> can be changed according to the system
 	
 	//---------------------Reading particle positions-------------------//
 	string myText;
