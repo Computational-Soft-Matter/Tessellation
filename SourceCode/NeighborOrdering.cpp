@@ -2,7 +2,7 @@
 
 
 namespace Tessellation {
-	//-------- Function to sort the list of neighbors (using the global list of neighbors- "pos_neighbor") according to its angle with the target particle \n //
+	//-------- Function to sort the list of neighbors (using the global list of neighbors- "pos_neighbor") according to their angle with the target particle \n //
 	// and an arbitrary direction (vector between target particle and the first neighbor) (Algorithm 4) ...................//
 	vector<int> neighborordering(int i, vector<vector<int>>&pos_neighbor, vector<Vector3d>&pos) {
 		if (pos_neighbor[i].size() == 1) {
@@ -13,8 +13,8 @@ namespace Tessellation {
 		}
 		vector<int>finallist;
 		int i_size = pos_neighbor[i].size();
-		map<Real, Real>p_angles;					// Container for particles on positive side of connection line between i and reference vector
-		map<Real, Real>n_angles;					// Container for particles on negative side of connection line between i and reference vector
+		map<Real, Real>p_angles;			// Container for particles on positive side of connection line between i and reference vector
+		map<Real, Real>n_angles;			// Container for particles on negative side of connection line between i and reference vector
 		int t_ind = pos_neighbor[i][0];
 		Vector3d ot(pos.at(t_ind)(0) - pos.at(i)(0), pos.at(t_ind)(1) - pos.at(i)(1), pos.at(t_ind)(2) - pos.at(i)(2));
 		Real testminimum = 999;						
@@ -72,8 +72,8 @@ namespace Tessellation {
 		}
 		vector<Real>vector_p;
 		vector<Real>vector_n;
-		vector_p = sort(p_angles);					// Sorted list of particles on positive side of connection line between i and reference vector
-		vector_n = sort(n_angles);					// Sorted list of particles on negative side of connection line between i and reference vector
+		vector_p = sort(p_angles);			// Sorted list of particles on positive side of connection line between i and reference vector
+		vector_n = sort(n_angles);			// Sorted list of particles on negative side of connection line between i and reference vector
 		// Building up of the final ordered list
 		if (vector_p.empty()) {
 			finallist.push_back(t_ind);
@@ -113,8 +113,8 @@ namespace Tessellation {
 		vector<int>finallist;
 		int currentnode = i;
 		Real isize = givencontainer.size();
-		map<Real, Real>p_angles;			// Container for particles on positive side of connection line between i and reference vector
-		map<Real, Real>n_angles;			// Container for particles on negative side of connection line between i and reference vector
+		map<Real, Real>p_angles;		// Container for particles on positive side of connection line between i and reference vector
+		map<Real, Real>n_angles;		// Container for particles on negative side of connection line between i and reference vector
 		int t_ind = givencontainer[0];
 		Vector3d ot(pos.at(t_ind)(0) - pos.at(currentnode)(0), pos.at(t_ind)(1) - pos.at(currentnode)(1), pos.at(t_ind)(2) - pos.at(currentnode)(2));
 		Real testminimum = 999;						
@@ -207,7 +207,7 @@ namespace Tessellation {
 		return finallist;
 	}
 
-	//-------- Same function as above but the reference vector direction is provided through t_ind -------- //
+	//-------- Same function as above but the reference vector direction is provided usinig the particle index t_ind -------- //
 	vector<int> neighborordering(int i, vector<vector<int>>& pos_neighbor, vector<Vector3d>& pos, int t_ind) {
 		if (pos_neighbor[i].size() == 1) {
 			vector<int>finall;
@@ -217,9 +217,9 @@ namespace Tessellation {
 		}
 		vector<int>finallist;
 		int i_size = pos_neighbor[i].size();
-		map<Real, Real>p_angles;					// Container for particles on positive side of connection line between i and reference vector
-		map<Real, Real>n_angles;					// Container for particles on negative side of connection line between i and reference vector
-		//int t_ind = pos_neighbor[i][0];			// Instead of using the first neighboring particle as direction for reference vector, the direction is chosen as provided through input
+		map<Real, Real>p_angles;			// Container for particles on positive side of connection line between i and reference vector
+		map<Real, Real>n_angles;			// Container for particles on negative side of connection line between i and reference vector
+		//int t_ind = pos_neighbor[i][0];		// Instead of using the first neighboring particle as direction for reference vector, the direction is chosen as provided through input
 		Vector3d ot(pos.at(t_ind)(0) - pos.at(i)(0), pos.at(t_ind)(1) - pos.at(i)(1), pos.at(t_ind)(2) - pos.at(i)(2));
 		Real testminimum = 999;						
 		int test_n = 1;							
