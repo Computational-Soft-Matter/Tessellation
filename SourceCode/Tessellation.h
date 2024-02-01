@@ -40,12 +40,12 @@ namespace Tessellation {
 	// Change double to float for single precision
 	typedef double Real;
 
-	const Real R_e = 1.0;									// Equilibrium distance R_e (If not acquired from an MC simulation, predefine some value here)
-	const Real R_c = 2.23 * R_e;								// Cut-off distance for particle search
-	const Real delr = 0.25 * R_e;								// Window width
-	const Real dr = delr / 40;								// Radius change
-	const Real initialr = delr / 2; 							// Starting radius
-	const int NC = -2;									// Cut-off number of particles for annular search
+	const Real R_e = 1.0;				// Equilibrium distance R_e (If not acquired from an MC simulation, predefine some value here)
+	const Real R_c = 2.23 * R_e;			// Cut-off distance for particle search
+	const Real delr = 0.25 * R_e;			// Window width
+	const Real dr = delr / 40;			// Radius change
+	const Real initialr = delr / 2; 		// Starting radius
+	const int NC = -2;				// Cut-off number of particles for annular search
 
 }; // namespace Tessellation
 
