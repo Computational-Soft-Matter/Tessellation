@@ -909,7 +909,7 @@ int main() {
 	}
 
 	//-----------------Averaging Cells in Empty Regions (Sec. 2.1.4 in manuscript - Algorithm 8) --------------//
-	vector<pair<int, int>>empty_connection;								// pairs with no common neighbor between them
+	vector<pair<int, int>>empty_connection;								
 	for (int i = 0; i < n_part; i++) {
 		int isize = pos_neighbor[i].size();
 		for (int j = 0; j < isize; j++) {
