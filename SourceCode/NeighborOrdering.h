@@ -13,7 +13,7 @@ namespace Tessellation {
 	//-------- This allows the use of a modified list instead of the initial input -------- //
 	vector<int> neighborordering(int i, vector<int>&givencontainer, vector<vector<int>>&pos_neighbor, vector<Vector3d>&pos);
 	
-	//-------- Same function as above but the reference vector direction is provided through t_ind -------- //
+	//-------- Same function as above but the reference vector direction is provided usinig the particle index t_ind -------- //
 	vector<int> neighborordering(int i, vector<vector<int>>& pos_neighbor, vector<Vector3d>& pos, int t_ind);
 
 	//............... Function to update the deletable connections list (See Sec. 2.1.2).............//
