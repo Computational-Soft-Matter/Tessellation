@@ -5,7 +5,7 @@
 
 
 namespace Tessellation {
-	//-------- Function to sort the list of neighbors (using the global list of neighbors- "pos_neighbor") according to its angle with the target particle \n //
+	//-------- Function to sort the list of neighbors (using the global list of neighbors- "pos_neighbor") according to their angle with the target particle \n //
 	// and an arbitrary direction (vector between target particle and the first neighbor) (Algorithm 4) ...................//
 	vector<int> neighborordering(int i, vector<vector<int>>&pos_neighbor, vector<Vector3d>&pos);
 
