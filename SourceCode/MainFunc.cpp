@@ -45,32 +45,32 @@ bool CompareDatadlt(storedelete a, storedelete b)
 int main() {
 
 	//.............................User Inputs.......................................//
-	string input_file = "Figure18br";									// File that contains the 3D coordinates of the colloidal particles
-	string input_extension = ".vtk";									// Extension of the file that contains the 3D coordinates of the colloidal particles
-	string neighbor_input = "NULL";										// If neighbor list has been calculated previously, then instead of NULL, the file will contain the index of a particle, number of neighbors and the radius of search to acquire those neighbors
-	const int n_part = 1000;										// Total Number of Particles in the inputfile
-	const int nonrepeat_part = 1000;									// Non repeating number of Particles in the inputfile (This is equal to n_part for non periodic boundary cases) 	
-	bool swdel1 = 1;											// 1 if deleting process-1 is activated, 0 otherwise
-	bool swdel2 = 1;											// 1 if deleting process-2 is activated, 0 otherwise
-	bool swhole = 1;											// 1 if holes patch up is activated, 0 otherwise
-	bool sweempty = 1;											// 1 if empty regions fix is activated, 0 otherwise
+	string input_file = "Figure18br";		// File that contains the 3D coordinates of the colloidal particles
+	string input_extension = ".vtk";		// Extension of the file that contains the 3D coordinates of the colloidal particles
+	string neighbor_input = "NULL";			// If neighbor list has been calculated previously, then instead of NULL, the file will contain the index of a particle, number of neighbors and the radius of search to acquire those neighbors
+	const int n_part = 1000;			// Total Number of Particles in the inputfile
+	const int nonrepeat_part = 1000;		// Non repeating number of Particles in the inputfile (This is equal to n_part for non periodic boundary cases) 	
+	bool swdel1 = 1;				// 1 if deleting process-1 is activated, 0 otherwise
+	bool swdel2 = 1;				// 1 if deleting process-2 is activated, 0 otherwise
+	bool swhole = 1;				// 1 if holes patch up is activated, 0 otherwise
+	bool sweempty = 1;				// 1 if empty regions fix is activated, 0 otherwise
 	
 
 	//.............................Initializations.......................................//
-	string output_capsomer = input_file + "caps.vtk";							// Output file name that has the information of the capsomer cells
-	string output_outline = input_file + "otln.vtk";							// Output file name that has the information of capsomer outline
-	clock_t starttime = clock();										// Function to calculate algorithm's processor run time
-	int totalpoints = 0;											// Total number of points in the final VTK file containing all the capsomers (this includes the initial set of points and the vertices of the capsomers)
-	founds Emp[3000];											// Data structure for averaging points in empty region - (container to store the vertices of quadrilaterals that uses average capsomer vertices position described in section 2.1.4
-	int empcount = 0;											// Data structure for averaging points in empty region
-	int totalcaps = 0;											// total number of capsomers in the final vtk file
-	vector<Real>n_neighbor;											// neighbour information of target particles - first -> number of n_neighbor, second-> radius range of search
-	vector<int>vtknodes;											// particle IDs for final VTK file (including capsomer vertices)
-	vector<Real>avg_neighbor;										// average distances for n_neighbor
-	vector<pair<int, int>>single_edges;									// pairs of single edge connections
-	map<int, int>marked;											// marked node which has single edge connections and changed capsomers
-	vector<vector<int>>pos_neighbor;									// neighbour nodes of target particles
-	vector<Vector3d>pos;											// position of particles
+	string output_capsomer = input_file + "caps.vtk";		// Output file name that has the information of the capsomer cells
+	string output_outline = input_file + "otln.vtk";		// Output file name that has the information of capsomer outline
+	clock_t starttime = clock();					// Function to calculate algorithm's processor run time
+	int totalpoints = 0;						// Total number of points in the final VTK file containing all the capsomers (this includes the initial set of points and the vertices of the capsomers)
+	founds Emp[3000];						// Data structure for averaging points in empty region - (container to store the vertices of quadrilaterals that uses average capsomer vertices position described in section 2.1.4
+	int empcount = 0;						// Data structure for averaging points in empty region
+	int totalcaps = 0;						// Total number of capsomers in the final vtk file
+	vector<Real>n_neighbor;						// Neighbour information of target particles - first -> number of n_neighbor, second-> radius range of search
+	vector<int>vtknodes;						// Particle IDs for final VTK file (including capsomer vertices)
+	vector<Real>avg_neighbor;					// Average distances for n_neighbor
+	vector<pair<int, int>>single_edges;				// Pairs of single edge connections
+	map<int, int>marked;						// Marked node which has single edge connections and changed capsomers
+	vector<vector<int>>pos_neighbor;				// Neighbour nodes of target particles
+	vector<Vector3d>pos;						// Position of particles
 
 	
 	//---------------------Reading particle positions-------------------//
@@ -191,7 +191,7 @@ int main() {
 				init_r += dr;
 			}
 			n_neighbor.push_back(maxr);
-			//cout << i << " " << maxn << " " << maxr << endl;				//..................Printing the radius of search for each particle and the number of particles found as initial neighbors for debugging...............// 
+			//cout << i << " " << maxn << " " << maxr << endl;	//..................Printing the radius of search for each particle and the number of particles found as initial neighbors for debugging...............// 
 		}
 	}
 	
@@ -580,7 +580,7 @@ int main() {
 			}
 		}
 	}
-	//-----------------Forming particles chains surrounding gaps in the tessellation (Sec. 2.1.3 in manuscript - Algorithm 6) --------------//
+	//-----------------Forming particles chains surrounding gaps in the tessellation (Sec. 2.1.3 in manuscript - Algorithm 6) --------------//
 	map<int, bool>worked;									
 	vector<vector<int>>holes;								
 	for (int i = 0; i < listofsingles.size(); i++) {
