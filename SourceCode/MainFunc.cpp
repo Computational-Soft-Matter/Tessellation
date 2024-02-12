@@ -21,7 +21,7 @@ struct storedelete
 	int deletenode;
 };
 
-//---------Struct to contain information about average point deduction-----------//
+//---------Struct to contain information about average point calculation-----------//
 
 struct founds
 {
@@ -29,12 +29,14 @@ struct founds
 	Vector3d Point;
 };
 
-//----------Compare function to sort based on distance from struct-"storedelete".........//
+//----------Compare function to sort based on distance from struct-"store".........//
 
 bool CompareData(store a, store b)
 {
 	return a.avgdist < b.avgdist;
 }
+
+//----------Compare function to sort based on distance from struct-"storedelete".........//
 
 bool CompareDatadlt(storedelete a, storedelete b)
 {
