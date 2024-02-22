@@ -3,7 +3,7 @@
 namespace Tessellation {
 	//---------Distance between two particles with given 3D co-ordinates-----------//
 	Real dist(Vector3d A, Vector3d B) {
-		return sqrt(pow(A(0) - B(0), 2) + pow(A(1) - B(1), 2) + pow(A(2) - B(2), 2));
+		return sqrt(pow(A(0) - B(0), 2.0) + pow(A(1) - B(1), 2.0) + pow(A(2) - B(2), 2.0));
 	}
 
 	//----------------Vector search for 'a' inside Vector A-----------------//
@@ -35,14 +35,14 @@ namespace Tessellation {
 
 	//------------Circumcenter for a triangle with vertices given-------//
 	Vector3d findcc(Vector3d A, Vector3d B, Vector3d C) {
-		Real den = 2 * pow(((B - A).cross(C - A)).norm(), 2);
-		Vector3d num = pow((C - A).norm(), 2) * ((B - A).cross(C - A)).cross(B - A) + pow((B - A).norm(), 2) * ((C - A).cross(B - A)).cross(C - A);
+		Real den = 2.0 * pow(((B - A).cross(C - A)).norm(), 2);
+		Vector3d num = pow((C - A).norm(), 2.0) * ((B - A).cross(C - A)).cross(B - A) + pow((B - A).norm(), 2.0) * ((C - A).cross(B - A)).cross(C - A);
 		return A + num / den;
 	}
 
 	//------------Barycenter for a triangle with vertices given-------//
 	Vector3d findbc(Vector3d A, Vector3d B, Vector3d C) {
-		return (A + B + C) / 3;
+		return (A + B + C) / 3.0;
 	}
 
 	//------------Angle between two vectors - two outputs - first-> smallest angle(regardless of direction) ;  second-> positive angle(0,PI)-----------//
