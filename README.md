@@ -1,5 +1,7 @@
 # Tessellation
 
+Description and explanation in detail about the different sections of the source code are discussed in "https://www.sciencedirect.com/science/article/pii/S0010465524000894". Please follow this journal article. 
+
 To run the tessellation code, please run the source code in SourceCode/MainFunc.cpp
 
 INPUT FILE FORMAT
